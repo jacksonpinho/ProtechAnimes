@@ -12,7 +12,6 @@ builder.Services.AddDbContext<AnimeAPI.Infrastructure.Data.AnimeDbContext>(optio
     options.UseSqlServer(connectionString));
 
 builder.Services.AddScoped<IAnimeInterface, AnimeService>();
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
