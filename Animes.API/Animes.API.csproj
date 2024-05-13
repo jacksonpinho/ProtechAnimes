@@ -24,7 +24,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Animes.Application\Animes.Application.csproj" />
     <ProjectReference Include="..\Animes.Domain\Animes.Domain.csproj" />
-    <ProjectReference Include="..\Animes.Infrastructure\Animes.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

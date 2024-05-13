@@ -1,58 +1,113 @@
-﻿// Interface do Usuário (Web API)
-using Animes.API.Application.Services;
+﻿using AnimeAPI.Infrastructure.Data;
 using Animes.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Drawing.Printing;
 
-namespace Animes.API.Controllers
+[Route("api/[controller]")]
+[ApiController]
+public class AnimesController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class AnimesController : ControllerBase
+    private readonly AnimeDbContext _context;
+
+    public AnimesController(AnimeDbContext context)
     {
-        private readonly IAnimeService _animeService;
+        _context = context;
+    }
 
-        public AnimesController(IAnimeService animeService)
+    // GET: api/Animes
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Anime>>> GetAnimes(int pageIndex = 0, int pageSize = 10, string diretor = null, string nome = null, string palavraChave = null)
+    {
+        var query = _context.Animes.Where(a => !a.Excluido);
+
+        if (!string.IsNullOrEmpty(diretor))
+            query = query.Where(a => a.Diretor.Contains(diretor));
+
+        if (!string.IsNullOrEmpty(nome))
+            query = query.Where(a => a.Nome.Contains(nome));
+
+        if (!string.IsNullOrEmpty(palavraChave))
+            query = query.Where(a => a.Resumo.Contains(palavraChave));
+
+        var animes = await query.Skip(pageIndex * pageSize).Take(pageSize).ToListAsync();
+
+        return animes;
+    }
+
+    // GET: api/Animes/5
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Anime>> GetAnime(int id)
+    {
+        var anime = await _context.Animes.FindAsync(id);
+
+        if (anime == null || anime.Excluido)
         {
-            _animeService = animeService;
+            return NotFound();
         }
 
-        [HttpGet]
-        public IActionResult GetAnimes()
+        return anime ;
+    }
+
+    // PUT: api/Animes/5
+    [HttpPut("{id}")]
+    public async Task<IActionResult> PutAnime(int id, Anime anime)
+    {
+        if (id != anime.Id)
         {
-            var animes = _animeService.GetAnimes();
-            return Ok(animes);
+            return BadRequest();
         }
 
-        [HttpGet("{id}")]
-        public IActionResult GetAnime(int id)
+        _context.Entry(anime).State = EntityState.Modified;
+
+        try
         {
-            var anime = _animeService.GetAnime(id);
-            if (anime == null)
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!AnimeExists(id))
             {
                 return NotFound();
             }
-            return Ok(anime);
+            else
+            {
+                throw;
+            }
         }
 
-        [HttpPost]
-        public IActionResult AddAnime([FromBody] Anime anime)
+        return NoContent();
+    }
+
+    // POST: api/Animes
+    [HttpPost]
+    public async Task<ActionResult<Anime>> PostAnime(Anime anime)
+    {
+        _context.Animes.Add(anime);
+        await _context.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetAnime), new { id = anime.Id }, anime);
+    }
+
+    // DELETE: api/Animes/5
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteAnime(int id)
+    {
+        var anime = await _context.Animes.FindAsync(id);
+        if (anime == null)
         {
-            _animeService.AddAnime(anime);
-            return CreatedAtAction(nameof(GetAnime), new { id = anime.Id }, anime);
+            return NotFound();
         }
 
-        [HttpPut("{id}")]
-        public IActionResult UpdateAnime(int id, [FromBody] Anime anime)
-        {
-            _animeService.UpdateAnime(id, anime);
-            return NoContent();
-        }
+        anime.Excluido = true; // Exclusão lógica
+        await _context.SaveChangesAsync();
 
-        [HttpDelete("{id}")]
-        public IActionResult DeleteAnime(int id)
-        {
-            _animeService.DeleteAnime(id);
-            return NoContent();
-        }
+        return NoContent();
+    }
+
+    private bool AnimeExists(int id)
+    {
+        return _context.Animes.Any(e => e.Id == id);
     }
 }
