@@ -3,7 +3,7 @@
 
 namespace Animes.Application.Interfaces
 {
-    public interface IAnimeInterface
+    public interface IAnimeService
     {
         Task<IEnumerable<Anime>> GetAnimesAsync(int pageIndex, int pageSize, string diretor, string nome, string palavraChave);
         Task<Anime> GetAnimeByIdAsync(int id);

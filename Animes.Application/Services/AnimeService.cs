@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Animes.API.Application.Services
 {
 
-    public class AnimeService : IAnimeInterface
+    public class AnimeService : IAnimeService
     {
         private readonly AnimeDbContext _context;
 

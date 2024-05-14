@@ -18,7 +18,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<AnimeDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddScoped<IAnimeInterface, AnimeService>();
+builder.Services.AddScoped<IAnimeService, AnimeService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
