@@ -74,7 +74,6 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // Segurança
-// No método ConfigureServices do Startup.cs
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -119,7 +118,7 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "API AnimesProtech v1");
     });
 }
-app.UseMiddleware<JwtTokenHandlerMiddleware>();
+app.UseMiddleware<JwtTokenHandlerMiddlewareService>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseHttpsRedirection();

@@ -1,5 +1,4 @@
-﻿// Aplicação
-using AnimeAPI.Infrastructure.Data;
+﻿using AnimeAPI.Infrastructure.Data;
 using Animes.Application.Interfaces;
 using Animes.Domain.Entities;
 using Microsoft.EntityFrameworkCore;

@@ -24,31 +24,6 @@ public class AnimesController : ControllerBase
         _authService = authService;
     }
 
-    [HttpPost("Authenticate")]
-    [AllowAnonymous] // Permitir acesso anônimo para esta ação
-    [SwaggerOperation(Summary = "Autentica um usuário e retorna um token JWT.")]
-    [SwaggerResponse(200, "Usuário autenticado com sucesso.", typeof(string))]
-    [SwaggerResponse(401, "Credenciais inválidas.")]
-    public async Task<ActionResult<string>> Authenticate([FromBody] Login model)
-    {
-        // Verifique as credenciais do usuário
-        var token = await _authService.Authenticate(model.Username, model.Password);
-        if (token == null)
-            return Unauthorized("Credenciais inválidas.");
-
-        // Armazene o token JWT em um cookie seguro
-        Response.Cookies.Append("authToken", token, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict
-        });
-
-        // Se as credenciais forem válidas, retorne o token JWT
-        return Ok("Usuário autenticado com sucesso.");
-    }
-
-
 
     // LISTAGEM
     [HttpGet("Listagem")]

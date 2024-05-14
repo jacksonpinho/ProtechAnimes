@@ -1,9 +1,6 @@
 ﻿using AnimeAPI.Infrastructure.Data;
 using Animes.Application.Interfaces;
-using Animes.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Threading.Tasks;
 
 public class UserService : IUserService
 {
@@ -33,6 +30,7 @@ public class UserService : IUserService
         return (true, "Autenticação bem-sucedida.");
     }
 
+
     public async Task<bool> CreateUserAsync(User user)
     {
         try
@@ -46,5 +44,8 @@ public class UserService : IUserService
             return false;
         }
     }
-
+    public async Task<User> GetUserByIdAsync(int id)
+    {
+        return await _context.Users.FindAsync(id);
+    }
 }

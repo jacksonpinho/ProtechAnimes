@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+﻿
 
 namespace Animes.Application.Interfaces
 {

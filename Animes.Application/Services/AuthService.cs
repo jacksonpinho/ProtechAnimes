@@ -1,12 +1,9 @@
-﻿using AnimeAPI.Infrastructure.Data;
-using Animes.Application.Interfaces;
+﻿using Animes.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 public class AuthService : IAuthService
 {
@@ -39,12 +36,14 @@ public class AuthService : IAuthService
             Subject = new ClaimsIdentity(new Claim[]
             {
             new Claim(ClaimTypes.Name, username)
+          
                 // Você pode adicionar outras reivindicações conforme necessário
             }),
-            Expires = DateTime.UtcNow.AddHours(1), // Tempo de expiração do token
+            Expires = DateTime.UtcNow.AddSeconds(10), // Tempo de expiração do token
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
         var token = tokenHandler.CreateToken(tokenDescriptor);
+
         return tokenHandler.WriteToken(token);
     }
 

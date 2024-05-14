@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System.Threading.Tasks;
 
-public class JwtTokenHandlerMiddleware
+public class JwtTokenHandlerMiddlewareService
 {
     private readonly RequestDelegate _next;
 
-    public JwtTokenHandlerMiddleware(RequestDelegate next)
+    public JwtTokenHandlerMiddlewareService(RequestDelegate next)
     {
         _next = next;
     }
@@ -19,6 +18,7 @@ public class JwtTokenHandlerMiddleware
         {
             // Se o token estiver presente, consideramos o usuário autenticado
             context.Request.Headers.Add("Authorization", "Bearer " + token);
+            Console.WriteLine(token);
         }
 
         await _next(context);
