@@ -1,22 +1,54 @@
 ﻿using AnimeAPI.Infrastructure.Data;
+using Animes.Application.Interfaces;
 using Animes.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Common;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.IO;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class AnimesController : ControllerBase
 {
     private readonly AnimeDbContext _context;
+    private readonly IAuthService _authService;
 
-    public AnimesController(AnimeDbContext context)
+    public AnimesController(AnimeDbContext context, IAuthService authService)
     {
         _context = context;
+        _authService = authService;
     }
+
+    [HttpPost("Authenticate")]
+    [AllowAnonymous] // Permitir acesso anônimo para esta ação
+    [SwaggerOperation(Summary = "Autentica um usuário e retorna um token JWT.")]
+    [SwaggerResponse(200, "Usuário autenticado com sucesso.", typeof(string))]
+    [SwaggerResponse(401, "Credenciais inválidas.")]
+    public async Task<ActionResult<string>> Authenticate([FromBody] Login model)
+    {
+        // Verifique as credenciais do usuário
+        var token = await _authService.Authenticate(model.Username, model.Password);
+        if (token == null)
+            return Unauthorized("Credenciais inválidas.");
+
+        // Armazene o token JWT em um cookie seguro
+        Response.Cookies.Append("authToken", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict
+        });
+
+        // Se as credenciais forem válidas, retorne o token JWT
+        return Ok("Usuário autenticado com sucesso.");
+    }
+
+
 
     // LISTAGEM
     [HttpGet("Listagem")]
@@ -24,6 +56,8 @@ public class AnimesController : ControllerBase
     [SwaggerResponse(200, "Retorna a lista paginada de animes.", typeof(IEnumerable<Anime>))]
     public async Task<ActionResult<IEnumerable<Anime>>> GetAnimes(int pageIndex = 0, int pageSize = 10, string diretor = null, string nome = null, string palavraChave = null)
     {
+        // Adicione o middleware ao pipeline de solicitação HTTP
+       
         var query = _context.Animes.Where(a => !a.Excluido);
 
         if (!string.IsNullOrEmpty(diretor))
@@ -127,4 +161,5 @@ public class AnimesController : ControllerBase
     {
         return _context.Animes.Any(e => e.Id == id);
     }
+
 }

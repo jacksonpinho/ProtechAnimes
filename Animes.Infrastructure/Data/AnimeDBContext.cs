@@ -10,6 +10,9 @@ namespace AnimeAPI.Infrastructure.Data
         }
 
         public DbSet<Anime> Animes { get; set; }
+        public DbSet<User> Users { get; set; }
+
+ 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Aqui você pode configurar o modelo de dados, como chaves primárias, índices, relacionamentos, etc.
