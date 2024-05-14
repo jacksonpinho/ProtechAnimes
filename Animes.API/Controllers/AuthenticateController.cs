@@ -1,6 +1,6 @@
 ﻿using AnimeAPI.Infrastructure.Data;
 using Animes.Application.Interfaces;
-using Animes.Domain.Entities;
+using Animes.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
