@@ -10,62 +10,39 @@ namespace Animes.API.Application.Services
 
     public class AnimeService : IAnimeService
     {
-        private readonly AnimeDbContext _context;
+        private readonly IAnimeRepository _animeRepository;
 
-        public AnimeService(AnimeDbContext context)
+        public AnimeService(IAnimeRepository animeRepository)
         {
-            _context = context;
+            _animeRepository = animeRepository;
         }
-
 
         public async Task<IEnumerable<Anime>> GetAnimesAsync(int pageIndex, int pageSize, string diretor, string nome, string palavraChave)
         {
-            var query = _context.Animes.Where(a => !a.Excluido);
+            return await _animeRepository.GetAnimesAsync(pageIndex, pageSize, diretor, nome, palavraChave);
+        }
 
-            if (!string.IsNullOrEmpty(diretor))
-                query = query.Where(a => a.Diretor.Contains(diretor));
-
-            if (!string.IsNullOrEmpty(nome))
-                query = query.Where(a => a.Nome.Contains(nome));
-
-            if (!string.IsNullOrEmpty(palavraChave))
-                query = query.Where(a => a.Resumo.Contains(palavraChave));
-
-            var animes = await query.Skip(pageIndex * pageSize).Take(pageSize).ToListAsync();
-
-            return animes;
+        public async Task<Anime> GetAnimeByIdAsync(int id)
+        {
+            return await _animeRepository.GetAnimeByIdAsync(id);
         }
 
         public async Task AddAnimeAsync(Anime anime)
         {
-            _context.Animes.Add(anime);
-            await _context.SaveChangesAsync();
-        }
-
-
-        public async Task DeleteAnimeAsync(int id)
-        {
-            var anime = await _context.Animes.FindAsync(id);
-            if (anime != null)
-            {
-                anime.Excluido = true; // Exclusão lógica
-                await _context.SaveChangesAsync();
-            }
-        }
-
-
-        public async Task<Anime> GetAnimeByIdAsync(int id)
-        {
-            return await _context.Animes.FindAsync(id);
+            await _animeRepository.AddAnimeAsync(anime);
         }
 
         public async Task UpdateAnimeAsync(Anime anime)
         {
-            _context.Entry(anime).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            await _animeRepository.UpdateAnimeAsync(anime);
         }
 
+        public async Task DeleteAnimeAsync(int id)
+        {
+            await _animeRepository.DeleteAnimeAsync(id);
+        }
     }
+
 
 
 }

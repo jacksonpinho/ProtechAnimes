@@ -4,16 +4,16 @@ using Microsoft.EntityFrameworkCore;
 
 public class UserService : IUserService
 {
-    private readonly AnimeDbContext _context;
+    private readonly IUserRepository _userRepository;
 
-    public UserService(AnimeDbContext context)
+    public UserService(IUserRepository userRepository)
     {
-        _context = context;
+        _userRepository = userRepository;
     }
 
     public async Task<(bool, string)> AuthenticateAsync(string username, string password)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+        var user = await _userRepository.GetUserByUsernameAsync(username);
 
         if (user == null)
         {
@@ -30,22 +30,27 @@ public class UserService : IUserService
         return (true, "Autenticação bem-sucedida.");
     }
 
-
     public async Task<bool> CreateUserAsync(User user)
     {
         try
         {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            var existingUser = await _userRepository.GetUserByUsernameAsync(user.Username);
+            if (existingUser != null)
+            {
+                return false; // Usuário já existe
+            }
+
+            await _userRepository.AddUserAsync(user);
             return true;
         }
-        catch (Exception)
+        catch
         {
             return false;
         }
     }
+
     public async Task<User> GetUserByIdAsync(int id)
     {
-        return await _context.Users.FindAsync(id);
+        return await _userRepository.GetUserByIdAsync(id);
     }
 }
